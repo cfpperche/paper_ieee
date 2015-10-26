@@ -106,7 +106,7 @@
 % not capitalized unless they are the first or last word of the title.
 % Linebreaks \\ can be used within to get better formatting as desired.
 % Do not put math or special symbols in the title.
-\title{Estudo e modelagem para o software de controle supervisório em veículos autônomos terrestres}
+\title{Estudo e modelagem para o sistema de controle supervisório em veículos autônomos terrestres}
 
 % author names and affiliations
 % use a multiple column layout for up to three different
@@ -125,11 +125,11 @@
 % in the abstract
 \begin{abstract}
 
-%Obter total controle das atividades em veículos autônomos terrestres continua a ser uma questão em aberto devido a crescente complexidade inerente aos demais sistemas que compõe este tipo de aplicação. Para isso, avançadas estratégias de controle supervisório devem ser desenvolvidas para que se possa fazer o uso da capacidade total destes sistemas. A principal função do controle supervisório é monitorar e coordenar as atividades dos componentes de tal forma que o comportamento geral do veículo cumpra determinados requisitos.
+Obter total controle das atividades em veículos autônomos terrestres continua a ser uma questão em aberto devido a crescente complexidade inerente aos demais sistemas que compõe este tipo de aplicação. Para isso, avançadas estratégias de controle supervisório devem ser desenvolvidas para que se possa fazer o uso da capacidade total destes sistemas. A principal função do controle supervisório é monitorar e coordenar as atividades dos componentes de tal forma que o comportamento geral do veículo cumpra determinados requisitos.
 
-Neste artigo, é apresentado o estudo e a modelagem de uma arquitetura para o componente responsável pela supervisão operacional em veículos autônomos terrestres e a proposta preliminar para sua implementação com base em abordagens formais dos sistemas de controle para eventos discretos. Sob a arquitetura proposta, o controle supervisório é obtido através de uma estrutura uniforme de transições genéricas modeladas por máquinas de estados finitos para os sistemas presentes no veículo. Esta estrutura tem o objetivo de tornar determinístico o sistema como um todo, facilitando o cumprimento dos requisitos necessários para a execução das operações executadas. 
+Neste artigo, é apresentado o estudo e a modelagem de uma arquitetura para o componente responsável pela supervisão operacional em veículos autônomos terrestres e a proposta preliminar para sua implementação com base em abordagens formais dos sistemas de controle para eventos discretos. Sob a arquitetura proposta, o controle supervisório é obtido através de uma estrutura uniforme de transições "genéricas" modeladas por máquinas de estados finitos para os sistemas presentes no veículo. Esta estrutura tem o objetivo de fornecer um "comportamento" determinístico para o sistema como um todo, facilitando o cumprimento dos requisitos necessários para a execução das operações executadas. 
 
-Este trabalho propõe uma solução que possibilite a coordenação dos componentes que compõem veículos autônomos terrestres tanto a nível comportamental quanto operacional, realizando o monitoramento das usas tarefas de software.
+O trabalho propõe uma solução que possibilite a coordenação dos componentes que compõem veículos autônomos terrestres tanto a nível comportamental quanto operacional, realizando o monitoramento das tarefas e a garantia  da integridade do veículo.
 
 %A aplicabilidade do quadro proposta é ilustrada através de um cenário simples de terreno aberto.
 %The applicability of the proposed framework is illustrated by using a simple scenario of open terrain.
@@ -181,41 +181,36 @@ unmaned land vehicle, supervisory control, finite state machine, critical real-t
 % -------------------- NEW SECTION -------------------- 
 % -------------------- NEW SECTION -------------------- 
 \section{Introduction}\label{sec:introduction}
-Veículos autônomos terrestres precisam ser equipados com uma variedade de componentes para o processamento de dados, comunicação, atuação, sensoriamento, etc. A complexidade destes componentes tem crescido e cada vez mais eles desempenham suas funções de forma independente. Uma vez que estejam devidamente integrados e coordenados, eles tornam capaz a navegação autônoma guiando o veículo com a mínima intervenção humana \cite{autonomous_Hebert:1997:IUG:523961}. %\cite{autonomous_doi:10.1117/12.391642}.
+Veículos autônomos terrestres precisam ser equipados com uma variedade de componentes para o processamento de dados, comunicação, atuação, sensoriamento, etc. A complexidade destes componentes tem crescido e cada vez mais eles desempenham suas funções de forma independente. Uma vez que estejam devidamente integrados e coordenados, eles tornam capaz a navegação autônoma guiando o veículo com a mínima intervenção humana \cite{autonomous_Hebert:1997:IUG:523961} \cite{autonomous_doi:10.1117/12.391642}.
 
-Obter comportamento autônomo em um veículo terrestre ainda continua a ser uma questão desafiadora, principalmente devido a complexidade que o ambiente de operação apresenta. A superfície terrestre, bem como questões climáticas ou temporais, possui uma larga variedade de características que tornam até a navegação manual uma tarefa difícil. Estas condições interferem significativamente na performance dos veículos terrestres \cite{supervisory_Donmez:2010:MSE:2377576.2377580}. 
+Obter comportamento autônomo em um veículo terrestre ainda continua a ser uma questão desafiadora, principalmente devido a complexidade que o ambiente de operação apresenta. A superfície terrestre possui uma grande variedade de características que tornam até a navegação manual uma tarefa difícil. Um veículo que possui bom desempenho de operação em terrenos montanhosos pode não possuir a mesma eficiência em ambientes tropicais. Outras condições ambientais, como as questões climáticas ou temporais, também interferem significativamente na performance dos veículos terrestres \cite{supervisory_Donmez:2010:MSE:2377576.2377580}. 
 
-A solução para tais problemas requerem além da utilização de sofisticados componentes para processamento, comunicação, atuação e sensoriamento, mas também uma boa estratégia de controle supervisório capaz de possibilitar que os componentes possam utilizar o máximo de sua capacidade, sem que haja significativa degradação na performance do sistema \cite{supervisory_Cummings_1a}. A principal função de um sistema supervisório é o monitoramento e coordenação das atividades em execução nos componentes, para que de forma geral, o veículo cumpra os objetivos determinados, que podem variar desde mover de um local para outro no menor tempo possível, ou simplesmente seguir outro veículo a sua frente à uma distância segura. 
+A solução para tais problemas requerem além da utilização de sofisticados componentes para processamento, comunicação, atuação e sensoriamento, mas também uma boa estratégia de controle supervisório capaz de possibilitar que os componentes possam utilizar o máximo de sua capacidade, sem que haja significativa degradação na performance do sistema \cite{supervisory_Cummings_1a}. A principal função de um sistema supervisório é o monitoramento e coordenação das atividades em execução nos componentes, para que de forma geral, o veículo cumpra os objetivos determinados, que podem variar desde mover de um local para outro no menor tempo possível, ou simplesmente seguir outro veículo a sua frente à uma distância "segura". 
 
-Além disso, é preciso levar em conta que este tipo de aplicação é caracterizado como um sistema crítico de tempo real \cite{rtos_safety_mission_4062424}, %\cite{rtos_analysis_336046}
-onde alternativas para garantir que determinadas tarefas sejam cumpridas em um período de tempo especificado, caso contrário, falhas graves ocorreram tornando o projeto inviável \cite{rtos_nasa_monitors}. %\cite{rtos_choosing_barr2003choosing}.
+Além disso, é preciso levar em conta que este tipo de aplicação é caracterizado como um sistema crítico de tempo real \cite{rtos_safety_mission_4062424} \cite{rtos_analysis_336046}, onde alternativas para garantir que determinadas tarefas sejam cumpridas em um período de tempo especificado, caso contrário, falhas graves ocorreram tornando o projeto inviável \cite{rtos_nasa_monitors} \cite{rtos_choosing_barr2003choosing}.
 
-Neste trabalho é apresentado a proposta da arquitetura de controle supervisório para o Veiculo Inteligente do Laboratório de Mobilidade Autônoma (VILMA) \cite{lma_vilma_website} e seu processo de desenvolvimento, visando a obtenção de operações autônomas em ambientes terrestres, levando em consideração os requisitos necessários para os sistemas críticos de tempo real. Sob a arquitetura proposta, é adotada uma interface uniforme que deve ser incorporada aos sistemas que compõem o veículo além de uma plataforma que possibilite o desenvolvimento do projeto. A interface adotada representa um conjunto comportamental, onde cada componente presente na arquitetura do veículo possa ter suas tarefas gerenciadas pelo supervisório, possibilitando que as operações realizadas pelo veículo tenham caráter determinísticos.
+Neste trabalho é apresentado a proposta da arquitetura de controle supervisório para o veículo VILMA \cite{lma_vilma_website} e seu processo de desenvolvimento, visando a obtenção de operações autônomas em ambientes terrestres, levando em consideração os requisitos necessários para os sistemas críticos de tempo real. Sob a arquitetura proposta, é adotada uma interface uniforme que deve ser incorporada aos sistemas que compõem o veículo além de uma plataforma que possibilite o desenvolvimento do projeto. A interface adotada representa um conjunto comportamental, onde cada componente presente na arquitetura do veículo possa ter suas tarefas gerenciadas pelo supervisório, possibilitando que as operações realizadas pelo veículo tenham caráter determinísticos.
 
-O restante deste trabalho está organizado da seguinte forma. A Seção \ref{sec:architec_riquirements} descreve os conceitos e a metodologia utilizada para a arquitetura de supervisão e lista os objetivos e requisitos pretendidos. A Seção \ref{sec:proposed_architec} descreve o comportamento geral do veículo autônomo VILMA, apresenta os módulos e componentes presentes na arquitetura do veículo, descreve a estrutura de transições de estados para as tarefas a serem executadas em um componente onde as estrategias de controle supervisório atuam de acordo com o comportamento esperado e aborda uma possível metodologia para uma síntese formal de controle para a arquitetura proposta. A Seção \ref{sec:architec_components} apresenta os elementos de software utilizados para a plataforma de desenvolvimento da arquitetura. A Seção \ref{sec:implementation} traz uma descrição preliminar sobre a implementação da arquitetura de controle supervisório. Por fim, a Seção \ref{sec:conclusion} concluí este trabalho.
+O restante desta dissertação está organizada da seguinte forma. A Seção \ref{sec:architec_concepts} descreve os conceitos e a metodologia utilizada para a arquitetura de supervisão e lista os objetivos e requisitos pretendidos. A Seção \ref{sec:proposed_architec} descreve o comportamento geral do veículo autônomo VILMA, apresenta os módulos e componentes presentes na arquitetura do veículo, descreve a estrutura de transições de estados para as tarefas a serem executadas em um componente onde as estrategias de controle supervisório atuam de acordo com o comportamento esperado e aborda uma possível metodologia para uma síntese formal de controle para a arquitetura proposta. A Seção \ref{sec:architec_components} apresenta os elementos de software utilizados para a plataforma de desenvolvimento da arquitetura. A Seção \ref{sec:implementation} traz uma descrição preliminar sobre a implementação da arquitetura de controle supervisório. Por fim, a Seção \ref{sec:conclusion} concluí este trabalho.
 
 % -------------------- NEW SECTION -------------------- 
 % -------------------- NEW SECTION -------------------- 
 % -------------------- NEW SECTION -------------------- 
-%\section{Architecture Concepts}\label{sec:architec_concepts}
-\section{Architecture Requirements}\label{sec:architec_riquirements}
+\section{Architecture Concepts}\label{sec:architec_concepts}
 
-%Um veículo autônomo terrestre (VAT) é composto por diversos sistemas que possuem funções específicas, como percepção do ambiente local, controle da navegação, localização global, etc., todos operando em paralelo. 
-
-Segundo \cite{autonomous_siegwart2011introduction} sistemas autônomos devem possuir três operações básicas, que são, a percepção localização e mapeamento do ambiente que está inserido, o planejamento de trajetórias e o controle de dos movimentos. Tipicamente um VAT possui três modos de operação: modo manual, autônomo e colaborativo, o último, formado por sistemas ADAS (Advanced Drivers Asssited Systems).
-%Tipicamente um VAT possui o modo de operação manual, forma convencional com que os veículos são operados, e modo autônomo, que possui um completo controle computacional que determina sua "inteligência".
+Um veículo autônomo terrestre (VAT) é composto por diversos sistemas que possuem funções específicas, como percepção do ambiente local, controle da navegação, localização global, etc., todos operando em paralelo. Tipicamente um VAT possui o modo de operação manual, forma convencional com que os veículos são operados, e modo autônomo, que possui um completo controle computacional que determina sua "inteligência".
 
 O avanço das pesquisas envolvendo VATs tem resultado no aumento do nível de complexidade e volume de dados em seus sensores e sistemas específicos, gerando a necessidade de distribuir o processamento das informações em vários "computadores embarcados" que se comunicam de forma sincronizada. Assim, uma adequada supervisão dos módulos é essencial para um projeto modular com características determinísticas. Este gerenciamento deve realizar o controle das atividades de acordo com o as necessidades de cada tarefa e garantir o comportamento do veículo baseado em regras que priorizem as operações seguras.
 
-%Além disso, o desenvolvimento de um VAT necessita ser adaptável para todos os requisitos funcionais nos diversos cenários de operação em que o veículo possa realizar suas tarefas. Neste contexto, o sistema controle supervisório precisa verificar a integridade dos demais módulos que realizam, por exemplo, a leitura dos sensores, o controle de velocidade ou o sistema de posicionamento. Ou seja, verificar constantemente a presença e o comportamento destes sistemas.
+Além disso, o desenvolvimento de um VAT necessita ser adaptável para todos os requisitos funcionais nos diversos cenários de operação em que o veículo possa realizar suas tarefas. Neste contexto, o sistema controle supervisório precisa verificar a integridade dos demais módulos que realizam, por exemplo, a leitura dos sensores, o controle de velocidade ou o sistema de posicionamento. Ou seja, verificar constantemente a presença e o comportamento destes sistemas.
 
-Técnicas formais como maquinas de estado finitas (FSM, do inglês \textit{finit state machine}) para modelar o comportamento de sistemas determinísticos e obter seu controle supervisório tem sido utilizadas em diversas áreas que incluem comunicação em rede, sistemas de controle trafego, linhas de montagem, e assim por diante \cite{event_comparative_study} \cite{event_des_line_945770}. 
+Técnicas formais como maquinas de estado finitas (FSM, do inglês \textit{finit state machine}) para modelar o comportamento de sistemas determinísticos e realizar sua supervisão tem sido utilizadas em diversas áreas que incluem comunicação em rede, sistemas de controle trafego, linhas de montagem, e assim por diante \cite{event_comparative_study} \cite{event_des_line_945770}. 
 
 Esta mesma técnica tem sido apresentada por pesquisadores em trabalhos relacionados, como aplicações robóticas e sistemas de veículos autônomos. \cite{event_supervisory_soccer_994642} utiliza um conjunto de FSMs para descrever o comportamento colaborativo de robôs para partidas de futebol. \cite{event_hybrid_automata_827799} modela um robô autônomo utilizando um sistema hibrido de autômatos onde a alteração de seu comportamento é modelada por FSMs contendo estados discretos que correspondem a comportamentos distintos através de um modelo contínuo. \cite{event_modular_navigation} apresenta uma aplicação onde seu comportamento é baseado em modelagem por maquinas de estados para um sistema de navegação modular em um veículo que opera sob tuneis.
 
 Os trabalhos descritos tem como objetivo principal a modelagem do comportamento entre à comutação das atividades para execução de suas tarefas, tornando o comportamento do robô ou veículo estritamente determinista. No entanto, o problema de reconfiguração dinâmica dos sistemas para estes possam trabalhar em ambientes mutáveis não é abordada. Além disso, estes trabalhos não levam em conta o problema de coordenação entre os componentes que compõem a arquitetura de seus sistemas robóticos.
 
-Embora exista grande progresso nas pesquisas abordando métodos de percepção, visão, posicionamento, navegação, planejamento de trajetórias, controle, etc., pesquisas e aplicações abordando plataformas de supervisão para sistemas autônomos não estão no mesmo patamar. \cite{event_supervisory_land_1157827} apresenta uma arquitetura e a implementação preliminar para o sistema supervisório de um VAT chamado Ulysses. Este trabalho é utilizado como ponto de partida para esta pesquisa, onde apresentamos um projeto com melhorias do sistema de controle supervisório descrito pelos autores bem como as ferramentas utilizadas para a plataforma do veículo autônomo. 
+Enquanto existe um número significativo e grande progresso nas pesquisas abordando métodos de percepção, visão, posicionamento, navegação, planejamento de trajetórias, controle, etc., pesquisas e aplicações abordando plataformas de supervisão para sistemas autônomos não estão no mesmo patamar. Dentre as poucas existentes \cite{event_supervisory_land_1157827} apresenta uma arquitetura e à implementação preliminar para o sistema supervisório de um VAT chamado Ulysses. Este trabalho é utilizado como ponto de partida para esta pesquisa, onde apresentamos um projeto com melhorias do sistema de controle supervisório descrito pelos autores bem como as ferramentas utilizadas para a plataforma do veículo autônomo. 
 
 %\begin{figure}[h]
 %	\centering
@@ -229,10 +224,11 @@ Tendo como principal objetivo deste estudo, o desenvolvimento de um sistema deno
 \begin{itemize}
 	\item propor uma arquitetura determinística com características para o desenvolvimento de sistemas críticos em tempo real;
 	\item padronizar a interface de comunicação entre os sistemas presentes na arquitetura do veículo;
-	%\item fornecer uma interface que possibilite a integração de outros trabalhos ao sistema supervisório de forma ágil e baixa complexidade;
+	\item fornecer uma interface que possibilite a integração de outros trabalhos ao sistema supervisório de forma ágil e baixa complexidade;
 	\item oferecer um sistema supervisório que monitora o estado atual dos outros componentes do veículo;
-	\item o sistema supervisório deve coletar informações sobre os demais componentes, que devem ser reportadas a interface de usuário do veiculo;
-	%\item o supervisor deve decidir se um componente está trabalhando de forma esperada ou não, e tomar decisões para solucionar problemas;
+	\item o sistema supervisório deve coletar informações sobre os demais componentes;
+	\item o supervisor deve decidir se um componente está trabalhando de forma esperada ou não, e tomar decisões para solucionar problemas;
+	\item as informações coletadas devem ser reportadas a interface de usuário do veiculo;
 	\item além do controle comportamental e do gerenciamento operacional, o sistema supervisório deve monitorar a integridade dos demais componentes que implementem a interface fornecida pelo VIS;
 
 %	\item to ensure a set of characteristics that the architecture of all the built robots will provide. For example, the real-time communication bandwidth guarantee for a n number of dispositives plugged into the robot;
@@ -251,9 +247,9 @@ Tendo como principal objetivo deste estudo, o desenvolvimento de um sistema deno
 
 \section{Proposed Architecture}\label{sec:proposed_architec}
 
-Este trabalho propõe um sistema para o controle supervisório que utiliza o conceito convencional de modelagem por FSMs levando em consideração o problema de reconfiguração dinâmica para o veículo VILMA como uma potencial plataforma de desenvolvimento às outras pesquisas desenvolvidas no LMA. São adotados os conceitos formais para a modelagem por FSM e DES para que o sistema supervisório realize à coordenação dos demais módulos, troca do modo de operação do veículo, monitoramento da integridade dos sistemas e gerenciamento dos estados de operação dos módulos. 
+Este trabalho propõe um sistema para o controle supervisório que utiliza o conceito convencional de modelagem por FSMs levando em consideração o problema de reconfiguração dinâmica para o veículo VILMA como uma potencial plataforma de desenvolvimento às outras pesquisas desenvolvidas no LMA \cite{lma_vilma_website}. São adotados os conceitos formais para a modelagem por FSM e DES para que o sistema supervisório realize à coordenação dos demais módulos, troca do modo de operação do veículo, monitoramento da integridade dos sistemas e gerenciamento dos estados de operação dos módulos. 
 
-O controle supervisório é capaz de gerenciar apenas o que os demais sistemas estão informando a ele, para isso, é necessário que haja  uma interface comum entre os módulos presentes no veículo, onde em caso de mau funcionamento ou a ocorrência de um comportamento inesperado, o supervisor do veículo possa realizar a coordenação dos demais sistemas reagirem à situação em potencial. A plataforma abordada pode ser considerada como uma espécie co-piloto do VAT que diz ao veículo como suas atividades devem ser organizadas, que configuração utilizar em determinado momento, quando indicar falhas detectadas em algum sistema específico, etc.  
+Tenha em mente que o controle supervisório, como o nome sugere, supervisiona apenas o que os demais sistemas estão informando a ele, para isso, é necessário que haja  uma interface comum entre os módulos presentes no veículo, onde em caso de mau funcionamento ou a ocorrência de um comportamento inesperado, o supervisor do veículo possa realizar a coordenação dos demais sistemas reagirem à situação em potencial. A plataforma abordada pode ser considerada como uma espécie co-piloto do VAT que diz ao veículo como suas atividades devem ser organizadas, que configuração utilizar em determinado momento, quando indicar falhas detectadas em algum sistema específico, etc.  
 
 %
 % operational_modes
@@ -267,29 +263,29 @@ O laboratório de mobilidade autônoma (LMA) desenvolve pesquisas para que o pro
 	\item \textit{Teleoperation}, o veículo deve executar tarefas comandadas remotamente;
 \end{itemize}
 
-%A troca entre o modo de operação manual para o modo autônomo é feita diretamente pelo operador dentro do veículo. Uma vez que o automóvel encontra-se em modo autônomo, o condutor pode realizar a troca para o modo manual quando necessário ou assim que desejar.
+A troca entre o modo de operação manual para o modo autônomo é feita diretamente pelo operador dentro do veículo. Uma vez que o automóvel encontra-se em modo autônomo, o condutor pode realizar a troca para o modo manual quando necessário ou assim que desejar.
 
-%Durante o desenvolvimento do projeto o veículo deve executar suas tarefas operando em modo de depuração, nesta fase é possível operar em modo autônomo sendo permitida a realização de testes dos componentes e módulos que sendo desenvolvidos, porém o controle manual deve estar sempre disponível ao operador, tendo prioridade superior a qualquer tarefa autônoma sendo executada. A depuração também deve contar com o sistema de registro e visualização das mensagens e o estado sobre a situação atual de cada módulo em execução. A Figura \ref{fig:VILMA_OPERATIONAL_MODE} ilustra os modos de operação e as possíveis trocas entre os modos.
+Durante o desenvolvimento do projeto o veículo deve executar suas tarefas operando em modo de depuração, nesta fase é possível operar em modo autônomo sendo permitida a realização de testes dos componentes e módulos que sendo desenvolvidos, porém o controle manual deve estar sempre disponível ao operador, tendo prioridade superior a qualquer tarefa autônoma sendo executada. A depuração também deve contar com o sistema de registro e visualização das mensagens e o estado sobre a situação atual de cada módulo em execução. A Figura \ref{fig:VILMA_OPERATIONAL_MODE} ilustra os modos de operação e as possíveis trocas entre os modos.
 
-%\begin{figure}[h]
-%	\centering
-%	\includegraphics[width=200px,keepaspectratio]{imagens/VILMA_OPERATIONAL_MODE}
-%	\caption{Modos de operação do projeto VILMA.}
-%	\label{fig:VILMA_OPERATIONAL_MODE}
-%\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=200px,keepaspectratio]{imagens/VILMA_OPERATIONAL_MODE}
+	\caption{Modos de operação do projeto VILMA.}
+	\label{fig:VILMA_OPERATIONAL_MODE}
+\end{figure}
 
-%O mecanismo de comutação entre modos operacionais é composto por um conjunto de funções que todos os módulos da arquitetura do veículo devem obedecer para que as tarefas sejam executadas sem comprometimento das atividades. Isso permite ao veículo ter o comportamento esperado, por exemplo, quando cada módulo estiver no estado \textit{Working}, então, estes módulos estarão prontos para executar funções específicas para cada um de seus sistemas. No entanto, pode haver o caso em que funções específicas a determinados modos de operação precisem ser combinadas para possibilitar que tarefas complexas sejam cumpridas de forma eficiente. Por exemplo, o módulo de navegação possui funções que realizam tarefas específicas nos modos de operação \textit{open errain} e \textit{road following}. A combinação dessas duas funções vai gerar uma nova funcionalidade, resultando em um novo comportamento durante seu deslocamento. Ainda tendo como exemplo o sistema de navegação, as informações captadas pelos sensores do módulo de localização e percepção (GPS, IMU, Bussola, Câmera, Laser Escâner, etc.) é que determinam quando deve ser feita a alteração entre os modos operacionais. 
+O mecanismo de comutação entre modos operacionais é composto por um conjunto de funções que todos os módulos da arquitetura do veículo devem obedecer para que as tarefas sejam executadas sem comprometimento das atividades. Isso permite ao veículo ter o comportamento esperado, por exemplo, quando cada módulo estiver no estado \textit{Working}, então, estes módulos estarão prontos para executar funções específicas para cada um de seus sistemas. No entanto, pode haver o caso em que funções específicas a determinados modos de operação precisem ser combinadas para possibilitar que tarefas complexas sejam cumpridas de forma eficiente. Por exemplo, o módulo de navegação possui funções que realizam tarefas específicas nos modos de operação \textit{open errain} e \textit{road following}. A combinação dessas duas funções vai gerar uma nova funcionalidade, resultando em um novo comportamento durante seu deslocamento. Ainda tendo como exemplo o sistema de navegação, as informações captadas pelos sensores do módulo de localização e percepção (GPS, IMU, Bussola, Câmera, Laser Escâner, etc.) é que determinam quando deve ser feita a alteração entre os modos operacionais. 
 
-%Para exemplificar, considere a seguinte situação, suponha que o veículo esteja operando em modo \textit{open terrain}, e em algum momento o veículo recebe uma requisição do sistema de usuário para alterar seu destino. Neste momento, o sistema de usuário deve informar ao supervisório que houve uma requisição para alterar o destino da missão, consequentemente o supervisório direciona a informação para que o sistema de navegação instrua os sistemas de localização e posicionamento que continuem operando em modo \textit{open terrain}, caso a nova rota traçada possua uma estrada (detectada pelo tratamento das informações obtidas nos sensores), então os sistemas são informados que há uma estrada que leva ao destino e então devem alterar modo de operação adequado à aquela situação, no caso, \textit{road following}.
+Para exemplificar, considere a seguinte situação, suponha que o veículo esteja operando em modo \textit{open terrain}, e em algum momento o veículo recebe uma requisição do sistema de usuário para alterar seu destino. Neste momento, o sistema de usuário deve informar ao supervisório que houve uma requisição para alterar o destino da missão, consequentemente o supervisório direciona a informação para que o sistema de navegação instrua os sistemas de localização e posicionamento que continuem operando em modo \textit{open terrain}, caso a nova rota traçada possua uma estrada (detectada pelo tratamento das informações obtidas nos sensores), então os sistemas são informados que há uma estrada que leva ao destino e então devem alterar modo de operação adequado à aquela situação, no caso, \textit{road following}.
 
-%Podemos dizer que o veículo possui um sistema "inteligente" capaz de fornecer um conjunto abrangente de funções através da conjunção de funcionalidades, onde esta inteligência pode ser modelada por maquinas de estados para possibilitar o comportamento esperado pelo sistema supervisório, como no exemplo apresentado pela Figura \ref{fig:VILMA_OPERATIONAL_MODE_BEHAVIOR}.
+Sendo assim, podemos dizer que o veículo possui um sistema "inteligente" capaz de fornecer um conjunto abrangente de funções através da conjunção de funcionalidades, onde esta inteligência pode ser modelada por maquinas de estados para possibilitar o comportamento esperado pelo sistema supervisório, como no exemplo apresentado pela Figura \ref{fig:VILMA_OPERATIONAL_MODE_BEHAVIOR}.
 
-%\begin{figure}[h]
-%	\centering
-%	\includegraphics[width=120px,keepaspectratio]{imagens/VILMA_OPERATIONAL_MODE_BEHAVIOR}
-%	\caption{Comportamento de comutaçao FSM dos modos de operaçao.}
-%	\label{fig:VILMA_OPERATIONAL_MODE_BEHAVIOR}
-%\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=200px,keepaspectratio]{imagens/VILMA_OPERATIONAL_MODE_BEHAVIOR}
+	\caption{Comportamento de comutaçao FSM dos modos de operaçao.}
+	\label{fig:VILMA_OPERATIONAL_MODE_BEHAVIOR}
+\end{figure}
 
 %
 % modules_components
@@ -318,7 +314,7 @@ A lista à seguir apresenta uma visão geral sobre os módulos e suas principais
 	
 	\item \textit{Vehicle Navigation System} (VNS): é responsável pela geração de comandos para à navegação do veículo afim de realizar a tarefa determinada pelo operador. Além disso, ele deve ser capaz de realizar o planejamento da trajetória até a localização desejada, calcular a velocidade e sua direção gerando as informações necessárias para que o VCS execute as tarefas de forma segura. Também deve	monitorar a posição do veículo bem como a execução das manobras a serem realizadas até seu destino;
 	
-	\item \textit{Vehicle Integrity System} (VIS): O módulo VIS é responsável por garantir a integridade do sistema que opera o veículo enquanto estiver em funcionamento. Sua principal função é monitorar e coordenar as atividades dos módulos para se obter o comportamento esperado do veículo. O controle destas atividades é realizado por meio de uma interface comum modelada por autômatos, que é gerenciada pelo componente \textit{Supervisor} responsável por determinar o comportamento das transições dos estados básicos de operação dos sistemas, O VIS também realiza o roteamento dos dados entre os demais módulos, registra e publica as informações contento o status dos sistemas. Resumindo, o VIS atua como um co-piloto digital. Uma descrição mais aprofundada do sistema supervisório será apresentada no decorrer deste trabalho;
+	\item \textit{Vehicle Integrity System} (VIS): O módulo VIS é responsável por garantir a integridade do sistema que opera o veículo enquanto estiver em funcionamento. Sua principal função é monitorar e coordenar as atividades dos módulos para se obter o comportamento esperado do veículo. O controle destas atividades é realizado por meio de uma interface comum modelada por autômatos, que é gerenciada pelo componente \textit{Supervisor} responsável por determinar o comportamento das transições dos estados básicos de operação dos sistemas, como \textit{Standby}, \textit{Ready}, \textit{Working}, \textit{Internal Error}, etc. O VIS também realiza o roteamento dos dados entre os demais módulos, registra e publica as informações contento o status dos sistemas. Resumindo, o VIS atua como um co-piloto digital. Uma descrição mais aprofundada do sistema supervisório será apresentada no decorrer deste trabalho;
 \end{itemize}
 %
 % states_transitions
@@ -331,19 +327,19 @@ Cada componente deve conter obrigatoriamente esses estados. Para um dado compone
 
 \begin{itemize}
 
-	\item \textit{PowerOn} o condutor dá partida no veículo, neste instante o motor é iniciado porém o automóvel permanece estacionado aguardando as instruções do usuario sobre o modo de operação do veiculo;
+	\item em \textit{PowerOn} o condutor dá partida no veículo, neste instante o motor é iniciado porém o automóvel permanece estacionado aguardando as instruções do usuario sobre o modo de operação do veiculo;
 		
-	\item \textit{Standby} o componente passa a estar inicializado e o veículo continua parado. Nesse estado, o sistema não está vinculado a um modo autônomo de operação, onde permanece aguardo as instruções do sistema supervisório sobre o modo de operação ou à instrução para que retorne ao modo manual;
+	\item em \textit{Standby} o componente passa a estar inicializado e o veículo continua parado. Nesse estado, o sistema não está vinculado a um modo autônomo de operação, onde permanece aguardo as instruções do sistema supervisório sobre o modo de operação ou à instrução para que retorne ao modo manual;
 	
-	\item \textit{Ready}, o componente está vinculado a um modo autônomo de operação mas ainda não está operado nesse modo, o veículo continua estacionado com o moto em funcionamento. O motivo pela separação entre os estados \textit{Standby e Ready} deve-se ao fato deste trabalho se concentrar no comportamento geral do veículo, onde existe a necessidade de uma clara separação temporal entre os estados onde o veículo possa retornar ao modo de operação manual e o estado onde ele esteja preparado para operar em modo autônomo. A separação temporal dos estados é necessária para à sincronização das atividades dos componentes antes que eles entrem no estado \textit{Working};
+	\item em \textit{Ready}, o componente está vinculado a um modo autônomo de operação mas ainda não está operado nesse modo, o veículo continua estacionado com o moto em funcionamento. O motivo pela separação entre os estados \textit{Standby e Ready} deve-se ao fato deste trabalho se concentrar no comportamento geral do veículo, onde existe a necessidade de uma clara separação temporal entre os estados onde o veículo possa retornar ao modo de operação manual e o estado onde ele esteja preparado para operar em modo autônomo. A separação temporal dos estados é necessária para à sincronização das atividades dos componentes antes que eles entrem no estado \textit{Working};
 	
-	\item \textit{Working}, o componente está operando em um modo de operação autônomo e o veículo está em movimento. É neste estado que o algoritmo especifico do componente começa a ser executado para produzir seu comportamento esperado, por exemplo, a fusão sensorial do módulo VLS que integra os dados dos componentes GPS, IMU e bussola para produzir um mapa digital em escala global;
+	\item uma vez em \textit{Working}, o componente está operando em um modo de operação autônomo e o veículo está em movimento. É neste estado que o algoritmo especifico do componente começa a ser executado para produzir seu comportamento esperado, por exemplo, a fusão sensorial do módulo VLS que integra os dados dos componentes GPS, IMU e bussola para produzir um mapa digital em escala global;
 	
-	\item \textit{InternalError} e \textit{Emergency} o componente executa tarefas relevantes a manipulação de exceções geradas por seu algoritmo funcional ou respostas de emergência que comprometam o funcionamento geral do veículo;
+	\item em \textit{InternalError} e \textit{Emergency} o componente executa tarefas relevantes a manipulação de exceções geradas por seu algoritmo funcional ou respostas de emergência que comprometam o funcionamento geral do veículo;
 	
-	\item \textit{Shutdown}, o componente executa um conjunto predefinido de rotinas preparando o veículo para ser desligado, retornando o sistema ao estado \textit{PowerOff};
+	\item em \textit{Shutdown}, o componente executa um conjunto predefinido de rotinas preparando o veículo para ser desligado, retornando o sistema ao estado \textit{PowerOff};
 	
-	\item \textit{PowerOff}, o sistema está desligado e nenhum sinal elétrico é fornecido ao componente;
+	\item por fim, em \textit{PowerOff}, o sistema está desligado e nenhum sinal elétrico é fornecido ao componente;
 \end{itemize}
 
 As transições entre os estados consistem um conjunto de atividades que levam os componentes de um estado a outro. Para uma transição ocorrer ela deve ser disparada por um evento. Uma vez invocado, as atividades associadas a transição devem ser realizadas com sucesso para que o componente entre em um novo estado. O diagrama dos estados e as transições comuns ao sistema supervisório pode ser visto na Figura \ref{fig:VILMA_STATE_MACHINE2}. As especificações que representam restrições das atividades de cada módulo também podem ser moladas por uma autômatos para produzir um modelo de especificações composto. Em seguida, baseando-se na teoria de controle para eventos discretos (DES) podemos obter um modelo formal para o controle supervisório, como apresentado em \cite{event_systems}.
@@ -363,7 +359,8 @@ Embora cada componente contenha o conjunto de estados e transições obrigatóri
 % formal_synthesis
 \subsection{Approach of DES on Formal Synthesis }\label{subsec:formal_synthesis}
 
-Após o modelamento que determina o comportamento dos módulos em termos de estados e transições, é possível sintetizar a lógica do projeto VIS por meio de técnicas formais, por exemplo, a teoria de controle para sistemas supervisórios de evento discreto \cite{event_systems}. 
+Após o modelamento que determina o comportamento dos módulos em termos de estados e transições, é possível formalizar a lógica do projeto VIS através de técnicas formais mais avançadas. 
+Uma das possíveis metodologias é a teoria de controle para sistemas supervisórios de evento discreto \cite{event_systems}. 
 A aplicação desta técnica exige que os estados e transições dos módulos sejam expressos em conjuntos de autômatos (chamados de modelos), enquanto o comportamento desejado do veículo seja expresso por outro conjuntos de autômatos (chamados especificações). 
 Por exemplo, o comportamento de um módulo, seguindo as especificações do VIS como ilustrado na Figura \ref{fig:VILMA_STATE_MACHINE2}, pode ser representado por um automato $G = (Q,\Sigma,\delta,q_{0},Q_{m},q_{m-1})$, onde $Q$ é um conjunto de estados, exemplo, $Q =$ \{\textit{PowerOn, PowerOff, Standby, Ready, Working, InternalError, Emergency, Shutdown}\}, $\Sigma$ é um conjunto de transições, exemplo, $\Sigma =$ \{\textit{1,2,3,4,5,6,7,A,B,C,D,E,F,G,H,I,J,K,L,$\alpha$,$\beta$,...}\}, $\delta$ é a função de transição que especifica o novo estado após a transição do estado atual, como apresentado pela Tabela \ref{tab:func_transicao}, $q_{0}$ é o estado inicial, $q_{m-1}$ o estado final do componente e $Q_{m}$ é o conjunto de estados que indicam a conclusão de determinadas transições.
 
@@ -372,7 +369,7 @@ Por exemplo, o comportamento de um módulo, seguindo as especificações do VIS 
 \begin{table}[h]
 	\centering
 	\adjustbox{max height=\dimexpr\textheight-5.5cm\relax, max width=\textwidth}{
-		\renewcommand{\arraystretch}{1.1}
+		\renewcommand{\arraystretch}{1.25}
 		\begin{tabular}{|c|c|c|}
 			\hline
 			\multicolumn{3}{|c|}{$\delta(old state, transition) = new state$} \\ \hline
@@ -412,7 +409,7 @@ Ao utilizar esta abordagem, é possível sintetizar as estratégias de controle 
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=120px,keepaspectratio]{imagens/VILMA_TRANSITION_EXAMPLE}
+	\includegraphics[width=200px,keepaspectratio]{imagens/VILMA_TRANSITION_EXAMPLE}
 	\caption{Exemplo de uma especificação, $A_{vns}$: Transição do estado \textit{Ready} para \textit{Working} no módulo \textit{Vehicle Navigation System}, $B_{vcs}$: Transição do estado \textit{Ready} para \textit{Working} no módulo \textit{Vehicle Control System}.}
 	\label{fig:VILMA_TRANSITION_EXAMPLE}
 \end{figure}
@@ -430,26 +427,26 @@ Ao expressar todos os requisitos sobre o comportamento do veículo em autômatos
 
 O desenvolvimento de software para veículos autônomos terrestres é uma tarefa complexa. Não se trata apenas em escrever códigos que implementem algoritmos específicos para que o automóvel faça isso ou aquilo. O processo de desenvolvimento inclui implementar, integrar, simular, testar, etc. todos os componentes de software necessários para tornar o sistema uma plataforma funcionalmente viável. Para isso, muitos aspectos devem ser considerados pois situações adversas geralmente costumam ter diferentes requisitos e objetivos, não existe um manual passo-a-passo que diz corretamente como tudo deve ser feito. Porém, veículos autônomos apresentam uma característica em comum, este tipo de aplicação normalmente precisa atender requisitos temporais rigidamente estabelecidos, onde as tarefas precisam ser executadas dentro dos prazos determinados ou falhas catastróficas poderão ocorrer, causando o mal funcionamento do sistema e podendo levar danos com vítimas fatais.
 
-Para atender aos aspectos descritos, normalmente é necessário que a aplicação seja desenvolvida em uma plataforma que possua um sofisticado ambiente de hardware e software para garantir os critérios determinísticos de um sistema crítico de tempo real. Porém, este trabalho concentra seus esforços em prover uma arquitetura com foco em tecnologias e metodologias baseadas puramente em software, capazes de realizar tarefas críticas em tempo real, reduzindo o custo e tempo para a prototipagem do projeto VILMA. A seguir uma breve descrição dos componentes que formam a arquitetura proposta.
+Para atender aos aspectos descritos normalmente é necessário que a aplicação seja desenvolvida em uma plataforma que possua um sofisticado ambiente de hardware e software para garantir os critérios determinísticos de um sistema crítico de tempo real. Porém, este trabalho concentra seus esforços em prover uma arquitetura com foco em tecnologias e metodologias baseadas puramente em software, capazes de realizar tarefas críticas em tempo real, reduzindo o custo e tempo para a prototipagem do projeto VILMA.
 
 %Antes de descrever as especificações do sistema de controle supervisório, será apresentado brevemente conceitos para elucidar a compreensão do ambiente proposto, visando atender os requisitos necessários para a realização deste projeto. Vale ressaltar que a metodologia de escolha para a proposta da arquitetura a ser desenvolvida baseia-se nos estudos e resultados previamente realizados por outros pesquisadores, não sendo considerada uma escolha definitiva.
 
-%A Figura \ref{fig:VILMA_ENV_OVERVIEW_NET} apresenta o esquema dos principais elementos que compõem ambiente de desenvolvimento proposto para o projeto VILMA.
+A Figura \ref{fig:VILMA_ENV_OVERVIEW_NET} apresenta o esquema dos principais elementos que compõem ambiente de desenvolvimento proposto para o projeto VILMA.
 
-%\begin{figure}[h]
-%	\centering
-%	\includegraphics[width=250px,keepaspectratio]{imagens/VILMA_ENV_OVERVIEW_NET.png}
-%	\caption{VILMA platform, infraestrutura dos componentes utilizados para o %desenvolvimento do projeto VILMA.}
-%	\label{fig:VILMA_ENV_OVERVIEW_NET}
-%\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[width=250px,keepaspectratio]{imagens/VILMA_ENV_OVERVIEW_NET.png}
+	\caption{VILMA platform, infraestrutura dos componentes utilizados para o desenvolvimento do projeto VILMA.}
+	\label{fig:VILMA_ENV_OVERVIEW_NET}
+\end{figure}
 
 %
 % linux
 \subsection{Linux}\label{subsec:linux}
 
-Linux is an operating system. It is the software on a computer that enables applications and the computer operator to access the devices on the computer to perform desired functions. The operating system (OS) relays instructions from an application to, for instance, the computer's processor. The processor performs the instructed task, then sends the results back to the application via the operating system \cite{linux_barabanov1997}.
+Linux is, in simplest terms, an operating system. It is the software on a computer that enables applications and the computer operator to access the devices on the computer to perform desired functions. The operating system (OS) relays instructions from an application to, for instance, the computer's processor. The processor performs the instructed task, then sends the results back to the application via the operating system \cite{linux_barabanov1997}.
 
-%One of the most noted properties of Linux is where it can be used. Windows and OS X are predominantly found on personal computing devices such as desktop and laptop computers. Other operating systems, such as Symbian, are found on small devices such as phones and PDAs, while mainframes and supercomputers found in major academic and corporate labs use specialized operating systems such as AS/400 and the Cray OS.
+One of the most noted properties of Linux is where it can be used. Windows and OS X are predominantly found on personal computing devices such as desktop and laptop computers. Other operating systems, such as Symbian, are found on small devices such as phones and PDAs, while mainframes and supercomputers found in major academic and corporate labs use specialized operating systems such as AS/400 and the Cray OS.
 
 Linux, which began its existence as a server OS and Has become useful as a desktop OS, can also be used on all of these devices. “From wristwatches to supercomputers”, is the popular description of Linux' capabilities. \cite{linux_foundation}
 
@@ -457,50 +454,46 @@ Linux, which began its existence as a server OS and Has become useful as a deskt
 % xenomai
 \subsection{Xenomai}\label{subsec:xenomai}
 
-Xenomai \cite{xenomai_api} is a real-time development framework cooperating with the Linux kernel, in order to provide a pervasive, interface-agnostic, hard real-time support to user-space applications, seamlessly integrated into the GNU/Linux environment. The Xenomai drivers has the RTDM (Real-Time Driver Model) which composes the following modules: CAN Devices, Real-time IPC Devices, Serial Devices, and Testing Devices \cite{rtdm_Kiszka}.
-%\cite{xenomai_x_linux}.
+Xenomai \cite{xenomai_api} is a real-time development framework cooperating with the Linux kernel, in order to provide a pervasive, interface-agnostic, hard real-time support to user-space applications, seamlessly integrated into the GNU/Linux environment \cite{xenomai_x_linux}. The Xenomai drivers has the RTDM (Real-Time Driver Model) which composes the following modules: CAN Devices, Real-time IPC Devices, Serial Devices, and Testing Devices \cite{rtdm_Kiszka}.
+
 %
 % rtnet
 \subsection{RTnet}\label{subsec:rtnet}
 
 With Ethernet, the communications are not deterministic because of the collision which can occur between several host on a network with a hub, or because of the unknown latency in the case of the switch. The deterministic communication is not allowed by the Ethernet protocol because of the possibility of collisions which can occurs and supported by the mechanism CSMA/CD (Carrier Sense Multiple Access/Collision Detection) \cite{rtnet_IEEE_so53551}.
 
-RTnet is a protocol stack which run between the Ethernet layer and the application layer (or IP layer) with hard real-time requirements \cite{rtnet_org}. It aims, through the use of time intervals (time-slots), is to make deterministic communication, by disabling the collision detection CSMA/CD, and prevent buffering packet in the network. 
+RTnet is a protocol stack which run between the Ethernet layer and the application layer (or IP layer) with hard real-time requirements \cite{rtnet_org}. It aims, through the use of time intervals (time-slots), is to make deterministic communication, by disabling the collision detection CSMA/CD, and prevent buffering packet in the network. RTnet is a software developed to run on Linux kernel with RTAI or Xenomai real-time extension. It exploits the real time kernel extension to ensure the determinism on the communication stack. In this aim, all the instructions related to this protocol makes use real time kernel functions rather than those of Linux, which bound latencies to the execution times and latencies of interruptions which provide deterministic’s communication \cite{rtnet_from_xenomai}.
 
-%RTnet is a software developed to run on Linux kernel with RTAI or Xenomai real-time extension. It exploits the real time kernel extension to ensure the determinism on the communication stack. In this aim, all the instructions related to this protocol makes use real time kernel functions rather than those of Linux, which bound latencies to the execution times and latencies of interruptions which provide deterministic’s communication \cite{rtnet_from_xenomai}.
-
-%The protocol supports both real-time and non-real-time communication. Applications are able to reserve a portion of the available bandwidth to transmit real-time data, organised in streams and requires a fully-connected communication medium, such as a common bus, Ethernet, or a radio medium, where every message sent can be received directly by all other nodes. Broadcast capabilities are needed to enable automatic addition and removal of nodes and to synchronize the nodes' clocks.\cite{rtnet_1559870}. 
-%At the same time the network uses the remaining bandwidth for best-effort traffic. The network is scheduled dynamically, using standard real-time scheduling algorithms normally used to schedule tasks on a CPU.
-%Nodes and streams may be flexibly added and removed. The protocol can be used in any local area environment where a distributed protocol is appropriate and where Quality of Service (QoS) support and flexibility is required \cite{rtnet_Wulf03acompact}.
+The protocol supports both real-time and non-real-time communication. Applications are able to reserve a portion of the available bandwidth to transmit real-time data, organised in streams and requires a fully-connected communication medium, such as a common bus, Ethernet, or a radio medium, where every message sent can be received directly by all other nodes. Broadcast capabilities are needed to enable automatic addition and removal of nodes and to synchronize the nodes' clocks.\cite{rtnet_1559870}. 
+At the same time the network uses the remaining bandwidth for best-effort traffic. The network is scheduled dynamically, using standard real-time scheduling algorithms normally used to schedule tasks on a CPU.
+Nodes and streams may be flexibly added and removed. The protocol can be used in any local area environment where a distributed protocol is appropriate and where Quality of Service (QoS) support and flexibility is required \cite{rtnet_Wulf03acompact}.
 
 %
 % ros
 \subsection{ROS}\label{subsec:ros}
 The robot software is base on the ROS (Robot Operating System) \cite{ros_components}, an meta-operating system for robots. It provides the services like hardware abstraction, low-level device control, and message-passing between processes.
-ROS is composed by the operating system commands that manage the packages, and a suite of user contributed packages (organized into sets called stacks) that implement functionality such as simultaneous localization and mapping, planning, perception, simulation etc \cite{ros_gentle_introduction}. 
-%\cite{ros_bmw_sticha}.
+ROS is composed by the operating system commands that manage the packages, and a suite of user contributed packages (organized into sets called stacks) that implement functionality such as simultaneous localization and mapping, planning, perception, simulation etc \cite{ros_gentle_introduction} \cite{ros_bmw_sticha}.
 
-%O Robotic Operating System (ROS) \cite{ros_willowgarage} atua como um meta sistema operativo e caixa de ferramentas (toolbox). ROS fornece várias bibliotecas que são comumente usadas em problemas robóticos. Tem muitas interfaces de comunicação entre programas como o modelo publisher-subscriber, cliente-servidor, cliente-servidor assíncrono, filas de dados, relógios e gerenciador de tarefas cíclicas. Além disso, também fornece interfaces gráficas múltiplas com ferramentas para ajudar o desenvolvimento. As ferramentas podem ser usadas no tempo de execução ou armazenados para posteriores processamentos. Esta ferramenta tem licença Apache e foi a selecionada para fazer os caminhos entre os programas principalmente por sua rápida curva de aprendizagem, o suporte da comunidade livre e dos desenvolvedores, a possibilidade de usar ferramentas e módulos já desenvolvidos e a possibilidade de ser integrado com ferramentas de programação para desenvolver software com requerimentos de tempo real como o OROCOS \cite{orocos_Project_IEEE).
 %
 % orocos
 \subsection{OROCOS}\label{subsec:orocos}
 Orocos \cite{orocos_Project_IEEE} is the acronym of the Open Robot Control Software project. The project's aim is to develop a general purpose, free software, and modular framework for robot and machine control. The Orocos project supports 4 C++ libraries \cite{orocos_manual}: the Real-Time Toolkit, the Kinematics and Dynamics Library, the Bayesian Filtering Library and the Orocos Component Library.
 The Orocos Real-Time Toolkit (RTT) is not an application in itself, but it provides the infrastructure and the functionalities to build robotics applications in C++.
-The emphasis is on real-time, on-line interactive and component based applications. %\cite{orocos_Cobem}.
+The emphasis is on real-time, on-line interactive and component based applications \cite{orocos_Cobem}.
 
-A integração entre OROCOS e ROS pode ser realizada utilizando a biblioteca \textit{rtt\_ros\_integration} \cite{rtt_ros_integration}. Resumidamente, o \textit{framework} ROS é utilizado para criar uma interface de comunicação entre os componentes e o sistema OROCOS realiza o encapsulamento da API do \textit{kernel} de tempo real Xenomai possibilitando a definição e execução de tarefas em tempo real ou não.
+A integração entre OROCOS e ROS pode ser realizada utilizando a biblioteca \textit{rtt\_ros\_integration} \cite{rtt_ros_integration}. Uma breve descrição sobre como essa integração acontece é apresentada a seguir:
 
-%Uma breve descrição sobre como essa integração acontece é apresentada a seguir:
+\begin{itemize}
+	\item \textbf{Data flow} Os componentes de OROCOS possuem estruturas chamadas de \textit{data ports}, meio por onde os componentes trocam dados entre si e os processos. No sistema ROS esse mecanismo é equivalente aos \textit{nodes} , que realizam a troca de informações entre os \textit{topics}. Através da biblioteca de integração, componentes OROCOS podem publicar dados para os \textit{topics} do ROS e vice versão;
+	
+	\item \textbf{Properties} Componentes OROCOS também possuem variáveis chamadas \textit{property}, ao passo que \textit{nodes} em ROS possuem os chamados \textit{parameters}. Assim, a biblioteca torna possível que os componentes OROCOS leiam os parâmetros oriundos dos \textit{server parameter} em ROS;
+	
+	\item \textbf{Deployment} O desenvolvimento dos componentes em OROCOS são executados em combinação com os \textit{nodes} em ROS através da utilização de somente um único \textit{script} de inicialização (chamado de \textit{launch});
+	
+	\item \textbf{Generation and Building} Ambos ROS e OROCOS possuem macros e \textit{scripts} disponíveis para a geração dos componentes em OROCOS e os pacotes ROS através do meta-compilador Catkin \cite{catkin_ros} \cite{catkin_gentle_intro};
+\end{itemize}
 
-%\begin{itemize}
-%	\item \textbf{Data flow} Os componentes de OROCOS possuem estruturas chamadas de \textit{data ports}, meio por onde os componentes trocam dados entre si e os processos. No sistema ROS esse mecanismo é equivalente aos \textit{nodes} , que realizam a troca de informações entre os \textit{topics}. Através da biblioteca de integração, componentes OROCOS podem publicar dados para os \textit{topics} do ROS e vice versão;
-%	
-%	\item \textbf{Properties} Componentes OROCOS também possuem variáveis chamadas \textit{property}, ao passo que \textit{nodes} em ROS possuem os chamados \textit{parameters}. Assim, a biblioteca torna possível que os componentes OROCOS leiam os parâmetros oriundos dos \textit{server parameter} em ROS;
-%	
-%	\item \textbf{Deployment} O desenvolvimento dos componentes em OROCOS são executados em combinação com os \textit{nodes} em ROS através da utilização de somente um único \textit{script} de inicialização (chamado de \textit{launch});
-%	
-%	\item \textbf{Generation and Building} Ambos ROS e OROCOS possuem macros e \textit{scripts} disponíveis para a geração dos componentes em OROCOS e os pacotes ROS através do meta-compilador Catkin \cite{catkin_ros} \cite{catkin_gentle_intro};
-%\end{itemize}
+Em resumo, o \textit{framework} ROS é utilizado para criar uma interface de comunicação entre os componentes e o sistema OROCOS realiza o encapsulamento da API do \textit{kernel} de tempo real Xenomai possibilitando a definição e execução de tarefas em tempo real ou não.
 
 % -------------------- NEW SECTION -------------------- 
 % -------------------- NEW SECTION -------------------- 
@@ -509,7 +502,7 @@ A integração entre OROCOS e ROS pode ser realizada utilizando a biblioteca \te
 
 O sistema de controle supervisório realiza o gerenciamento e a coleta de informações dos outros componentes do veículo por meio de uma interface comum que precisa ser implementada por cada um deles. Assim, deve-se fornecer aos demais pesquisadores do LMA meios para que possam integrar seus projetos ao sistema supervisório possibilitando a gerenciamento de seus sistemas de forma "transparente". Além disso, após a integração o consumo de recursos do sistema precisa ser o mínimo possível para não impactar na performance funcional dos projetos. 
 
-O supervisório deve também garantir a integridade dos componentes necessários para à execução das tarefas durante a navegação autônoma, para isso, uma mensagem será solicitada periodicamente a cada componente presentes no sistema, com o a finalidade de garantir a presença e seu adequado funcionamento. Por fim, é necessário repassar as informações coletadas de cada sistema para um componente de interface com usuário.
+O supervisório deve também garantir a integridade dos componentes necessários para à execução das tarefas durante a navegação autônoma, para isso, uma mensagem será solicitada periodicamente a cada componente presentes no sistema, com o a finalidade de garantir a presença e seu adequado funcionamento. Por fim, é necessário repassar as informações coletadas de cada sistema para um componente de interface com usuário. O objetivo é que o operador possa dizer se um componente está se comportando corretamente ou não, sem ter qualquer conhecimento do supervisor.
 
 %
 % module_behavior
@@ -569,7 +562,7 @@ A discussão sobre o projeto do controle supervisório que estabeleça um compor
 
 Neste sentido, foi apresentado o estudo e modelagem para o sistema de controle supervisório que compõe à arquitetura proposta para a plataforma de desenvolvimento do veículo VILMA e sua implementação preliminar a fim de atender seu objetivo determinado, realizar operações autônomas em ambiente terrestre de forma segura.
 
-Através da arquitetura proposta, torna-se possível realizar o gerenciamento do sistemas no veículo VILMA através da adoção de uma interface uniforme modelada por FSM, que utiliza transições genéricas para a comutação dos estados referentes as tarefas executadas em cada componente no veículo. Esta estrutura representa um conjunto comportamental para os componentes gerenciados pelo VIS concebido com base nesta estrutura possibilitando que o sistema possua elevado grau de determinismo, ou seja, o veículo possui comportamento esperado durante a execução de suas tarefas.
+De acordo com esta arquitetura, o gerenciamento operacional do veículo é obtido através da adoção de uma interface uniforme modelada por FSM, que utiliza transições genéricas para a comutação dos estados referentes as tarefas executadas em cada componente no veículo. Esta estrutura representa um conjunto comportamental para os componentes gerenciados pelo VIS concebido com base nesta estrutura possibilitando que o sistema possua elevado grau de determinismo, ou seja, o veículo possui comportamento esperado durante a execução de suas tarefas.
 
 Além disso, mostramos que esta arquitetura pode facilitar a implementação para estratégias de controle mais sofisticados através de técnicas formais, como no caso dos DES, onde o controle supervisório baseado na metodologia de eventos discretos podem elevar o grau de autonomia do veículo, e representa um próximo passo para o desenvolvimento do veículo autônomo inteligente VILMA.
 
@@ -579,9 +572,9 @@ A integração entre os sistemas de baixo nível (Linux, Xenomai, Ethernet e RTn
 
 A integração entre as estruturas em nível de usuário (ROS e OROCOS), reforça a ideia de agilidade e simplificação para o desenvolvimento das pesquisas desenvolvidas no LMA, inicialmente essa integração é baseada somente nas funcionalidades entre para o fluxos de dados entre os componentes dos \textit{frameworks} utilizados.		
 
-%Enquanto ROS possui bom suporte para a componentes distribuídos através da rede Ethernet, OROCOS oferece suporte à tarefas de comunicação entre componentes que necessitem de garantias temporais. Isso combina o melhor dos dois mundos: o controle em tempo real de baixo nível é tratado por um conjunto de componentes OROCOS-RTT que controla diretamente a troca de estados, gerencia os modos de operação adequados, verifica constante da integridade de cada sistema e ainda torna a comunicação entre os componentes visível para toda a rede dos sistemas ROS.
+Enquanto ROS possui bom suporte para a componentes distribuídos através da rede Ethernet, OROCOS oferece suporte à tarefas de comunicação entre componentes que necessitem de garantias temporais. Isso combina o melhor dos dois mundos: o controle em tempo real de baixo nível é tratado por um conjunto de componentes OROCOS-RTT que controla diretamente a troca de estados, gerencia os modos de operação adequados, verifica constante da integridade de cada sistema e ainda torna a comunicação entre os componentes visível para toda a rede dos sistemas ROS.
 
-%Por fim, a integração torna os componentes OROCOS como sendo componentes ROS, sem que haja quebra nos requisitos de tempo real entre os componentes OROCOS-RTT. Permitindo que sejam utilizadas as diversas ferramentas desenvolvidas para ROS, por exemplo, \textit{rviz} e \textit{rxplot}, para visualizar a comunicação entre os controladores.
+Por fim, a integração torna os componentes OROCOS como sendo componentes ROS, sem que haja quebra nos requisitos de tempo real entre os componentes OROCOS-RTT. Permitindo que sejam utilizadas as diversas ferramentas desenvolvidas para ROS, por exemplo, \textit{rviz} e \textit{rxplot}, para visualizar a comunicação entre os controladores.
 
 % -------------------- NEW SECTION -------------------- 
 % -------------------- NEW SECTION -------------------- 
