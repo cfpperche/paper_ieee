@@ -328,41 +328,39 @@ The list below introduces an overview of the modules and its main functions to t
 % states_transitions
 \subsection{States and Transitions for Supervisory Control}\label{subsec:states_transitions}
 
-Para que haja adequada coordenação das atividades executadas pelos sistemas presentes na arquitetura do veículo, é necessário que os componentes possuam um comportamento uniforme em relação ao VIS. Sendo assim, cada componente precisa implementar uma interface comum, também modelada por um conjunto de estados e transições que são reconhecidos pelo sistema de supervisão, possibilitando o gerenciamento das atividades sendo executadas, realizar o roteamento das mensagens necessárias à depuração e o armazenamento dos dados, etc. A coordenação entre módulos é responsável por determinar a sequencia das atividades e as condições que um sistema deve atender para que ele possa executar suas especialidades.
+In order to have the proper coordination between the activities performed by the present systems in vehicle architecture, it is necessary that the components have a uniform behavior in relation to the VIS system. Thus, each component needs to implement a common interface, modeled by a set of states and transitions that are recognized by the supervisory system, enabling the management of their activities being performed, perform routing of messages required for debugging and the data storage, etc. The coordination of the modules is responsible for determining the sequence of activities and the conditions that a system must have so that it can perform its specialties.
 
-Sob a perspectiva do controle supervisório, os estados presentes neste sistema são: \textit{PowerOn}, \textit{PowerOff}, \textit{Standby}, \textit{Ready}, \textit{Working}, \textit{InternalError}, \textit{Emergency}, e \textit{Shutdown}.
-Cada componente deve conter obrigatoriamente esses estados. Para um dado componente, o significado dos estado e o comportamento geral do veículo pode ser resumido da seguinte maneira.
+Under the perspective of supervisory control, the states present in the common interface of the systems are: PowerOn, Standby, Ready, Working, InternalError, Emergency, Shutdown and PowerOff. Each component must contain these states. For a certain component, the meaning of the states and the general behavior of the vehicle can be summarized as follows.
 
 \begin{itemize}
 
-	\item \textit{PowerOn} o condutor dá partida no veículo, neste instante o motor é iniciado porém o automóvel permanece estacionado aguardando as instruções do usuario sobre o modo de operação do veiculo;
+	\item \textit{PowerOn} The driver starts the vehicle, at this moment the engine is started but the car remains parked awaiting the instructions of the driver. 
+	
+	\item \textit{Standby} The component comes to be started and the vehicle remains stationary. In this state, the system is not linked to an autonomous operation mode, it remains awaiting the instructions from the supervisory system about the operating mode that it will work or the instruction to return to the manual mode;
 		
-	\item \textit{Standby} o componente passa a estar inicializado e o veículo continua parado. Nesse estado, o sistema não está vinculado a um modo autônomo de operação, onde permanece aguardo as instruções do sistema supervisório sobre o modo de operação ou à instrução para que retorne ao modo manual;
+	\item \textit{Ready}, In this state the component is linked to an autonomous operation mode but not yet operated in this mode. The reason for the separation between Standby and Ready states is due to the fact that the article focuses on the general behavior of the vehicle, clearly denoting the temporal separation of the states which the vehicle can return to manual operation and the state which it is ready to operate in standalone mode. The temporal separation of the states is required for the synchronization of activities on the components before they enters in the state Working.
 	
-	\item \textit{Ready}, o componente está vinculado a um modo autônomo de operação mas ainda não está operado nesse modo, o veículo continua estacionado com o moto em funcionamento. O motivo pela separação entre os estados \textit{Standby e Ready} deve-se ao fato deste trabalho se concentrar no comportamento geral do veículo, onde existe a necessidade de uma clara separação temporal entre os estados onde o veículo possa retornar ao modo de operação manual e o estado onde ele esteja preparado para operar em modo autônomo. A separação temporal dos estados é necessária para à sincronização das atividades dos componentes antes que eles entrem no estado \textit{Working};
+	\item \textit{Working}, In this state the component is operating in a autonomous mode and the vehicle is moving. Now, the algorithm that performs specific functions of the component begins to run to produce its expected behavior.
+
+	\item \textit{InternalError} e \textit{Emergency} The component performs tasks relevant to handling exceptions raised by your specific algorithm or handling of emergency that might compromise the overall operation of the vehicle.
+		
+	\item \textit{Shutdown}, The component executes a predefined set of routines preparing the vehicle to be turned off, bringing the system to the state PowerOff;
 	
-	\item \textit{Working}, o componente está operando em um modo de operação autônomo e o veículo está em movimento. É neste estado que o algoritmo especifico do componente começa a ser executado para produzir seu comportamento esperado, por exemplo, a fusão sensorial do módulo VLS que integra os dados dos componentes GPS, IMU e bussola para produzir um mapa digital em escala global;
-	
-	\item \textit{InternalError} e \textit{Emergency} o componente executa tarefas relevantes a manipulação de exceções geradas por seu algoritmo funcional ou respostas de emergência que comprometam o funcionamento geral do veículo;
-	
-	\item \textit{Shutdown}, o componente executa um conjunto predefinido de rotinas preparando o veículo para ser desligado, retornando o sistema ao estado \textit{PowerOff};
-	
-	\item \textit{PowerOff}, o sistema está desligado e nenhum sinal elétrico é fornecido ao componente;
+	\item \textit{PowerOff}, The system is turned off and no electric signal is supplied to the component.
 \end{itemize}
 
-As transições entre os estados consistem um conjunto de atividades que levam os componentes de um estado a outro. Para uma transição ocorrer ela deve ser disparada por um evento. Uma vez invocado, as atividades associadas a transição devem ser realizadas com sucesso para que o componente entre em um novo estado. O diagrama dos estados e as transições comuns ao sistema supervisório pode ser visto na Figura \ref{fig:VILMA_STATE_MACHINE2}. As especificações que representam restrições das atividades de cada módulo também podem ser moladas por uma autômatos para produzir um modelo de especificações composto. Em seguida, baseando-se na teoria de controle para eventos discretos (DES) podemos obter um modelo formal para o controle supervisório, como apresentado em \cite{event_systems}.
+Transitions between states are a set of activities that lead the components from one state to another. In order to a transition occurs it must be triggered by an event. Once invoked, the activities associated with the transition must be performed successfully so that the component get into a new state. The diagram of the common states and transitions to the supervisory system can be seen in Figure \ref{fig:VILMA_STATE_MACHINE2}. Specifications that represent constraints of the activities for each module may also be modeled by automatas to produce a composite  specification model. With the obtained model, based on the theory of control for discrete events (DES) we can get a formal model for supervisory control, as discussed in \cite{event_systems}.
 
-As especificações resultantes, descritas por uma FSM, formam uma cadeia contendo todas as atividades e sequências de transições permitidas para garantir que todas as especificações sejam atendidas, ou seja, quando algum dos módulos precisa realizar uma transição entre os estados da FSM que descrevem seu comportamento. Por exemplo, para entrar no estado \textit{Working} ou deixar o estado \textit{Working} e ir para o estado \textit{Standby} ou quando um módulo estiver realizando o tratamento de alguma exceção em \textit{InternalError}, todas as transições dos estados relacionados devem verificar suas restrições e obter a permissão do modulo supervisório antes que a transição ocorra. 
+The resultant specifications, described by an FSM form a chain containing all activities and sequences of allowed transitions to ensure that all specifications are fulfilled, i.e., when any of the modules need to perform a transition between states of the FSM that describes its behavior. For example, to enter the Working state or leave the Working state and go to the Standby state or when a module is performing the treatment of some exception in InternalError, all transitions of related states must check their restrictions and obtain permission from the the supervisor module before the transition occurs.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=250px,keepaspectratio]{imagens/VILMA_STATE_MACHINE2}
-	\caption{Estados e transições dos componentes.}
+	\caption{States and transitions of components.}
 	\label{fig:VILMA_STATE_MACHINE2}
 \end{figure}
 
-Embora cada componente contenha o conjunto de estados e transições obrigatórios, a questão sobre as atividades envolvidas nos estados e transições é transparente para o VIS. Em outras palavras, o VIS não conhece internamente a complexidade das tarefas executadas dentro dos estados ou durante as transições de um componente e não existe restrição que ele possua apenas estes estados e transições. As atividades envolvidas nas transições de cada componente podem ser diferentes daquelas presentes em outros componentes.
-
+Although each component contains the set of states and transitions required, the question of the activities involved in the states and transitions is transparent to the VIS. In other words, the VIS not internally knows the complexity of the tasks performed within the states or during the transitions from one component and there is no restriction that it only has these states and transitions. The activities involved in the transitions of each component may differ from those present in other components.
 %
 % formal_synthesis
 \subsection{Approach of DES on Formal Synthesis }\label{subsec:formal_synthesis}
