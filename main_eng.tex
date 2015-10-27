@@ -365,9 +365,7 @@ Although each component contains the set of states and transitions required, the
 % formal_synthesis
 \subsection{Approach of DES on Formal Synthesis }\label{subsec:formal_synthesis}
 
-Após o modelamento que determina o comportamento dos módulos em termos de estados e transições, é possível sintetizar a lógica do projeto VIS por meio de técnicas formais, por exemplo, a teoria de controle para sistemas supervisórios de evento discreto \cite{event_systems}. 
-A aplicação desta técnica exige que os estados e transições dos módulos sejam expressos em conjuntos de autômatos (chamados de modelos), enquanto o comportamento desejado do veículo seja expresso por outro conjuntos de autômatos (chamados especificações). 
-Por exemplo, o comportamento de um módulo, seguindo as especificações do VIS como ilustrado na Figura \ref{fig:VILMA_STATE_MACHINE2}, pode ser representado por um automato $G = (Q,\Sigma,\delta,q_{0},Q_{m},q_{m-1})$, onde $Q$ é um conjunto de estados, exemplo, $Q =$ \{\textit{PowerOn, PowerOff, Standby, Ready, Working, InternalError, Emergency, Shutdown}\}, $\Sigma$ é um conjunto de transições, exemplo, $\Sigma =$ \{\textit{1,2,3,4,5,6,7,A,B,C,D,E,F,G,H,I,J,K,L,$\alpha$,$\beta$,...}\}, $\delta$ é a função de transição que especifica o novo estado após a transição do estado atual, como apresentado pela Tabela \ref{tab:func_transicao}, $q_{0}$ é o estado inicial, $q_{m-1}$ o estado final do componente e $Q_{m}$ é o conjunto de estados que indicam a conclusão de determinadas transições.
+After modeling pattern that determines the behavior of the modules in terms of states and transitions, it is possible to synthesize logic of VIS by formal techniques, for example, the supervisory control theory to discrete event systems \cite{event_systems}. The application of this technique requires that the states and transitions of the modules are expressed by sets of automata (called models), while the desired behavior of the vehicle is expressed by other sets of automata (called specifications). For example, the behavior of a module, according the specifications of the VIS as illustrated in Figure \ref{fig:VILMA_STATE_MACHINE2}, can be represented by an automata $G = (Q,\Sigma,\delta,q_{0},Q_{m},q_{m-1})$, where, $Q$ is a set of states, e.g., $Q =$ \{\textit{PowerOn, PowerOff, Standby, Ready, Working, InternalError, Emergency, Shutdown}\}, $\Sigma$ is a set of transitions, e.g., $\Sigma =$ \{\textit{1,2,3,4,5,6,7,A,B,C,D,E,F,G,H,I,J,K,L,$\alpha$,$\beta$,...}\}, $\delta$ is a transition function that specifies the new state after a transition from a given state, as presented in Table \ref{tab:func_transicao}, $q_{0}$ is the initial state of the component, $q_{m-1}$ is the final state of the component and $Q_{m}$ is the set of states that indicate the completion of certain desired sequence of tasks.
 
 % Please add the following required packages to your document preamble:
 % \usepackage{multirow}
@@ -401,27 +399,26 @@ Por exemplo, o comportamento de um módulo, seguindo as especificações do VIS 
 		\end{tabular}
 		\renewcommand{\arraystretch}{1}
 	}
-	\caption{Exemplo da função de transição $\delta$ do modelo baseado na Figura \ref{fig:VILMA_STATE_MACHINE2}.}
+	\caption{Example of the transition function $\delta$ of the model based on the Figure \ref{fig:VILMA_STATE_MACHINE2}.}
 	\label{tab:func_transicao}
 \end{table}
 
-Uma vez que cada módulo do sistema é modelado por um automato $G_{i}$, um modelo composto sobre o comportamento geral do veículo pode ser construído utilizando o procedimento chamado \textit{"synchronous product"}, representado pelo símbolo $\lVert$ \cite{event_systems_ebook}. O resultado do produto síncrono sobre todo $G_{i}$ é um novo automato que representa o comportamento "livre" (não controlado) das atividades simultâneas dos módulos. Ou seja, $G = G_{1} \lVert G_{2} \lVert G_{3} \lVert ... \lVert G_{n}$.  
+Since each module of the system is modeled by an automaton $G_{i}$, a composite model of the overall behavior of the vehicle can be build using the procedure called "synchronous product", represented by the symbol $\lVert$ \cite{event_systems_ebook}. The result of the synchronous product over all $G_{i}$ is a new automaton that represents the "free" behavior (uncontrolled) of simultaneous activities of the components, i.e., $G = G_{1} \lVert G_{2} \lVert G_{3} \lVert ... \lVert G_{n}$.  
 
-Então, o comportamento determinístico do veículo pode ser imposto ao comportamento "livre" para se obter as estratégias para o controle supervisório esperados pelo VIS. Formalmente, tal comportamento também é expresso em autômatos, chamados autômatos de especificações. 
-Ao impor as especificações do modelo composto de todos os componentes do veículo, um conjunto sequencial de transições pode ser obtido para serem executadas pelo VIS, garantindo que o comportamento do veículo atenda as especificações de controle. 
+Then the desired deterministic behavior of the vehicle may be imposed on the behavior "free" to obtain strategies for supervisory control expected by the VIS system. Formally, such behavior is also expressed in automata, called specifications automata. By imposing the specifications of the model composite of all vehicle components, a sequential set of transitions may be obtained to be run by the VIS, ensuring that the vehicle behavior control meets the specifications.
 
-Ao utilizar esta abordagem, é possível sintetizar as estratégias de controle supervisório permitindo que o veículo possa lidar com situações distintas. Por exemplo, suponha que devido restrições de sincronização temporal, o VCS só possa entrar no estado \textit{Working} após o VNS estiver no estado \textit{Working}. Isso pode ser considerado como um dos requisitos que constituem o comportamento desejado para a inicialização de uma tarefa. Esse requisito pode ser expresso como uma especificação $S_{i}$, como apresentado na Figura \ref{fig:VILMA_TRANSITION_EXAMPLE}, onde os laços cíclicos representam outras possíveis transições que podem ocorrer no sistema.
+By using this approach, it is possible to synthesize the supervisory control strategies that allow the vehicle to deal with different situations. For instance, suppose that, due to timing synchronization constraints, the VCS can only enter the Working state  after VNS is in Working state. This can be considered as a requirement to comprise the desired behavior for the initialization of a task. This requirement can be expressed as a specification $S_{i}$, as shown in Figure \ref{fig:VILMA_TRANSITION_EXAMPLE}, which the cyclic loops represent other possible transitions that can occur in the system.
 
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=120px,keepaspectratio]{imagens/VILMA_TRANSITION_EXAMPLE}
-	\caption{Exemplo de uma especificação, $A_{vns}$: Transição do estado \textit{Ready} para \textit{Working} no módulo \textit{Vehicle Navigation System}, $B_{vcs}$: Transição do estado \textit{Ready} para \textit{Working} no módulo \textit{Vehicle Control System}.}
+	\caption{Specification example, $A_{vns}$: Transition from \textit{Ready} state to \textit{Working} in the \textit{Vehicle Navigation System} module, $B_{vcs}$: Transition from \textit{Ready} state to \textit{Working} in the \textit{Vehicle Control System} module.}
 	\label{fig:VILMA_TRANSITION_EXAMPLE}
 \end{figure}
 
-O controle supervisório que garanta o comportamento dos módulos, como um todo, e que satisfaça a especificação imposta por $S_{i}$ pode ser obtido, dentre outras formas, pelo algoritmo chamado \textit{SUPCON} \cite{supcom_wonham1987supremal}. Sua função é gerar sequencias de eventos sob a forma de outro automato $V$, exemplo, $ V = SUPCON(G,S_{i})$, que pode ser implementado para garantir o comportamento determinístico de todo o sistema do veículo.
+The supervisory control that guarantees the behavior of the modules as a whole, and meets the specification imposed by $S_{i}$ can be obtained, among other ways, by the algorithm \textit{SUPCON} \cite{supcom_wonham1987supremal}. Their function is to generate sequences of events as another automaton $V$, i.g., $V = SUPCON(G,S_{i})$, that can be implemented to ensure the deterministic behavior of the entire vehicle system.
 
-Ao expressar todos os requisitos sobre o comportamento do veículo em autômatos de especificações, torna-se possível desenvolver um método de controle sofisticado, que quando implementado pelo VIS garantirá que veículo atenda a todos os requisitos impostos pelos demais módulos. Essa abordagem formal permite o desenvolvimento sistemático e correto para as estratégias de controle supervisório, além de permitir a introdução da "inteligencia artificial programada" para o comportamento geral do veículo, e consequentemente obter um auto grau de autonomia.
+By expressing all the requirements on vehicle behavior in automaton specifications, it becomes possible to develop a sophisticated method of control, which when implemented by the VIS will ensure that the vehicle meets all the requirements imposed by other modules. This formal approach allows the systematic and proper development for supervisory control strategies, and allows the introduction of "programmed artificial intelligence" to the general behavior of the vehicle, and hence obtain a high degree of autonomy.
 
 % DOWNLOAD SOFTWARE DES http://www.control.utoronto.ca/~wonham/wonham.html
 
@@ -469,7 +466,9 @@ With Ethernet, the communications are not deterministic because of the collision
 
 RTnet is a protocol stack which run between the Ethernet layer and the application layer (or IP layer) with hard real-time requirements \cite{rtnet_org}. It aims, through the use of time intervals (time-slots), is to make deterministic communication, by disabling the collision detection CSMA/CD, and prevent buffering packet in the network. 
 
+
 %RTnet is a software developed to run on Linux kernel with RTAI or Xenomai real-time extension. It exploits the real time kernel extension to ensure the determinism on the communication stack. In this aim, all the instructions related to this protocol makes use real time kernel functions rather than those of Linux, which bound latencies to the execution times and latencies of interruptions which provide deterministic’s communication \cite{rtnet_from_xenomai}.
+
 
 %The protocol supports both real-time and non-real-time communication. Applications are able to reserve a portion of the available bandwidth to transmit real-time data, organised in streams and requires a fully-connected communication medium, such as a common bus, Ethernet, or a radio medium, where every message sent can be received directly by all other nodes. Broadcast capabilities are needed to enable automatic addition and removal of nodes and to synchronize the nodes' clocks.\cite{rtnet_1559870}. 
 %At the same time the network uses the remaining bandwidth for best-effort traffic. The network is scheduled dynamically, using standard real-time scheduling algorithms normally used to schedule tasks on a CPU.
